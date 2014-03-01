@@ -1,0 +1,55 @@
+#if (!$pagerForEntityColumns)
+    <script type="text/javascript">
+        Qibol.Current.reloadPage = function(navigateTo) {
+            var elementId = '${elementId}';
+            var loader = ${esc.d}("#" + elementId + "_Loader");
+            loader.show();
+            ${esc.d}.ajax({
+                type: "GET",
+                url: "${baseUrl}" + navigateTo,
+                success : function(data) {
+                    ${esc.d}("#" + elementId).remove();
+                    ${esc.d}("#mwcont").append(data);
+                    Qibol.Utils.openMw({element: elementId});
+                    loader.hide();
+                }
+            });
+        };
+    </script>
+    
+    <div class="little-pager">
+        #if($currentPage > 1)
+            <a href="javascript:void(0);" onClick="Qibol.Current.reloadPage('${baseLink}pageCount=${pageCount}&pageLimit=${pageLimit}&currentPage=1');" class="button prev">&lt;&lt;</a>
+        #end
+        #set($prev = $currentPage - 1)
+        #if($prev > 0)
+        	<a href="javascript:void(0);" onClick="Qibol.Current.reloadPage('${baseLink}pageCount=${pageCount}&pageLimit=${pageLimit}&currentPage=${prev}');" class="button prev">&lt;</a>
+        #end
+        <span><b>${currentPage}</b>&nbsp;из&nbsp;<b>${pageCount}</b></span>
+        #set($next = $currentPage + 1)
+        #if($next < $pageCount + 1)
+            <a href="javascript:void(0);" onClick="Qibol.Current.reloadPage('${baseLink}pageCount=${pageCount}&pageLimit=${pageLimit}&currentPage=${next}');" class="button next">&gt;</a>
+        #end
+        #if($currentPage < $pageCount)
+            <a href="javascript:void(0);" onClick="Qibol.Current.reloadPage('${baseLink}pageCount=${pageCount}&pageLimit=${pageLimit}&currentPage=${pageCount}');" class="button next">&gt;&gt;</a>
+        #end
+    </div>
+#else
+    <div class="little-pager">
+        #if($currentPage > 1)
+            <a href="javascript:void(0);" onClick="Qibol.Current.entityChanged(${objectId}, ${idPostfix}, ${pageCount}, ${pageLimit}, 1);" class="button prev">&lt;&lt;</a>
+        #end
+        #set($prev = $currentPage - 1)
+        #if($prev > 0)
+            <a href="javascript:void(0);" onClick="Qibol.Current.entityChanged(${objectId}, ${idPostfix}, ${pageCount}, ${pageLimit}, ${prev});" class="button prev">&lt;</a>
+        #end
+        <span><b>${currentPage}</b>&nbsp;из&nbsp;<b>${pageCount}</b></span>
+        #set($next = $currentPage + 1)
+        #if($next < $pageCount + 1)
+            <a href="javascript:void(0);" onClick="Qibol.Current.entityChanged(${objectId}, ${idPostfix}, ${pageCount}, ${pageLimit}, ${next});" class="button next">&gt;</a>
+        #end
+        #if($currentPage < $pageCount)
+            <a href="javascript:void(0);" onClick="Qibol.Current.entityChanged(${objectId}, ${idPostfix}, ${pageCount}, ${pageLimit}, ${pageCount});" class="button next">&gt;&gt;</a>
+        #end
+    </div>
+#end

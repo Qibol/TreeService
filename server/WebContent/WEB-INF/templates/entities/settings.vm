@@ -1,0 +1,88 @@
+<div class="content with-left-menu">
+    <div id="mainFeedbackContainer" class="feedback"></div>    
+    <h1>Редактирование атрибутов сущности "$entityName"</h1>
+    #parse("util/backlink.vm")
+    #parse("util/tab.vm")
+    <!--if ($allowEditObjects)-->
+    <script type="text/javascript">
+        ${esc.d}(function() {
+            var mainTable = ${esc.d}("#entityAttributesContainer");
+            new Qibol.User.SortableTable({
+                target: mainTable
+            });
+            
+            Qibol.Current.editableTable = new Qibol.User.EditableTable({
+                target: mainTable,
+                handlers: {
+                    "name": function(val) {
+                        if (val.length < 1)
+                            return false;
+                        return true;
+                    }
+                },
+                invokeHandler: function() {
+                    $("#tableSaveButton, #tableCancelButton").show();
+                }
+            });
+            $("#tableSaveButton").bind("click", function() {
+                Qibol.Current.editableTable.submit({
+                    url: "$baseUrl/secure/ajax/editentityattributes", 
+                    callback: function() {
+                        $("#tableSaveButton, #tableCancelButton").hide();
+                    }
+                });
+            });
+
+            var dynamicTable = new Qibol.User.DynamicTable({
+                target: mainTable
+            });
+        });
+    </script>
+    <!--end-->
+    <p>
+        <b class="req">*</b> Для редактирования названия используйте двойной клик по ячейке
+    </p>
+    <div class="content-list-header">
+        #parse("util/search.vm")
+        <p class="action-buttons">
+            <a id="tableSaveButton" class="button save" href="javascript:void(0);" style="display: none;"><span></span>Сохранить изменения</a>
+            <a id="tableCancelButton" class="button" href="javascript:void(0);" onclick="location.reload();" style="display: none;">Отменить изменения</a>
+        </p>
+    </div>
+    <table class="content-list" id="entityAttributesContainer">
+        <thead>
+            <tr>
+                <th width="1%">#</th>
+                <th width="1%">ID</th>
+                <th>Название</th>
+                <th width="10%">Тип</th>
+                <th width="10%">Длина</th>
+                <th width="10%">Точность</th>
+                <th width="10%">М.б. пустая</th>
+                <th width="10%">Индексируемая</th>
+            </tr>
+        </thead>
+        <tbody>
+            #set($num=1)
+            #foreach($attribute in $attributes)
+                #set($tmp = $num % 2) 
+                #if ($tmp==0) 
+                    <tr class="odd" data-id="$attribute.getAttributeId()">
+                #else
+                    <tr class="even" data-id="$attribute.getAttributeId()">
+                #end
+                    <td class="num">$num</td>
+                    <td class="ctext">$attribute.getAttributeId()</td>
+                    <td class="editable" data-column-id="name">$attribute.getName()</td>
+                    <td class="ltext">$attribute.getTypeReadable()</td>
+                    <td class="rtext">$attribute.getLength()</td>
+                    <td class="rtext">$attribute.getPrecision()</td>
+                    <td class="ctext">$attribute.isNullableReadable()</td>
+                    <td class="ctext">$attribute.isIndexedReadable()</td>
+                </tr>
+                #set($num=$num+1)
+            #end
+        </tbody>
+    </table>
+    #parse("util/pager.vm")
+</div>

@@ -1,0 +1,9 @@
+<title>$pageTitle</title>
+<meta charset="UTF-8">
+#foreach($cssStr in $cssList)
+	<link rel="stylesheet" type="text/css" href="${cssBase}/${cssStr}">
+#end
+
+#foreach($jsStr in $jsList)
+	<script type="text/javascript" src="${jsBase}/${jsStr}" ></script>
+#end

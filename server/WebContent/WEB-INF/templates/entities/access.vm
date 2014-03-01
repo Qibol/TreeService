@@ -1,0 +1,115 @@
+<div class="content with-left-menu">
+	<div id="mainFeedbackContainer" class="feedback"></div>
+	
+	<h1>Редактирование сущности "$entityName"</h1>
+	#parse("util/backlink.vm")
+	#parse("util/tab.vm")
+
+<script type="text/javascript">
+    Qibol.Current.submitAction = function(form) {
+        ${esc.d}.ajax({
+            type: "POST",
+            url: "${baseUrl}/secure/manageobject",
+            data: form.serialize(),
+            dataType: "json",
+            success: function(json) {
+                if (json.state == "1") {
+                    Qibol.User.toggleSuccess("Изменения сохранены", 3000);
+                } else {
+                    Qibol.User.toggleError("Все пропало!!!");
+                }
+            }
+        });
+        return false;
+    };
+
+    ${esc.d}(function() {
+        ${esc.d}("#accessForm input:first").focus();
+    });
+    
+    Qibol.Current.addUser = function(container, userId, userName) {
+       var result = ${esc.d}("#accessTable");
+       
+       result.append('<tr>'
+       + '<th width="15%">'
+       + '<a href="javascript:void(0);" class="ico remove" onclick="${esc.d}(this).closest(\'tr\').remove();"></a>&nbsp;' 
+       + userName + ':</th>' 
+       + '<td><div class="els-wrap">'
+       #foreach($grant in $fullAccess)
+     		+ '<input id="user_' + userId + '_${grant.getCode()}" type="checkbox" name="user_' + userId + '_${grant.getCode()}">&nbsp;<label for="user_' + userId + '_${grant.getCode()}">${grant.getDescription()}</label><br>'
+       #end
+       + '</div></td>'
+       + '</tr>');
+       
+       Qibol.Utils.closeMw(container);
+    };
+</script>
+<form id="accessForm" onsubmit="return Qibol.Current.submitAction(${esc.d}(this));">
+    <table class="edit-form" id="accessTable">
+        <tr>
+			<input type="hidden" name="objectId" value="${entityObjectId}">
+			<input type="hidden" name="type" value="3">
+            	<th width="15%">Имя:<b class="req">*</b></th>
+            <td>
+				<input type="text" name="name" value="${entityName}">
+            </td>
+        </tr>
+        <tr>
+            <th width="15%">Доступ по-умолчанию:<b class="req">*</b></th>
+            <td>
+                <div class="els-wrap">
+                	#set($found=0)
+                	#foreach($grant in $fullAccess)
+                		#set($found=0)
+                		#foreach($grass in $defaultAccess)
+                			#if (${grass.getCode()} == ${grant.getCode()})
+                    			<input id="default_${grant.getCode()}" type="checkbox" name="default_selected_${grant.getCode()}" checked>&nbsp;<label for="${grant.getCode()}">${grant.getDescription()}</label><br>
+                    			#set($found=1)
+                    			#break
+                    		#end
+                    	#end
+                    		
+                    	#if ($found==0)
+                    		<input id="default_${grant.getCode()}" type="checkbox" name="default_selected_${grant.getCode()}">&nbsp;<label for="${grant.getCode()}">${grant.getDescription()}</label><br>
+                    	#end
+                    #end
+                </div>
+            </td>
+        </tr>
+        
+        #foreach($user in $specUsers)
+        <tr>
+        	<th width="15%"><a href="javascript:void(0);" class="ico remove" onclick="${esc.d}(this).closest('tr').remove();"></a>&nbsp;${user.getName()}:</th>
+        	<td><div class="els-wrap">
+        	#set($found=0)
+        	#foreach($grant in $fullAccess)
+        		#set($found=0)
+                #foreach($entry in $objUserMapping.entrySet())
+                	#if (${entry.key} == $user.getUserId())
+	                	#foreach($grass in $entry.value)
+		                	#if (${grass.getCode()} == ${grant.getCode()})
+		     					<input id="user_${user.getUserId()}_${grant.getCode()}" type="checkbox" name="user_${user.getUserId()}_${grant.getCode()}" checked>
+		     					&nbsp;<label for="user_${user.getUserId()}_${grant.getCode()}">${grant.getDescription()}</label><br>
+		     					#set($found=1)
+		                    	#break
+		                    #end
+	                    #end
+	                #end
+     			#end
+     			
+     			#if ($found==0)
+                <input id="user_${user.getUserId()}_${grant.getCode()}" type="checkbox" name="user_${user.getUserId()}_${grant.getCode()}">
+     				&nbsp;<label for="user_${user.getUserId()}_${grant.getCode()}">${grant.getDescription()}</label><br>
+                #end	
+       		#end
+        	</div></td>
+        </tr>
+        #end
+        
+    </table>
+    <a href="javascript:void(0);" onclick="${esc.d}(this).closest('form').submit();" class="button save"><span></span>Сохранить</a>
+    <a href="javascript:void(0);" onclick="Qibol.Utils.openMw({
+                        element: 'usersMw', 
+                        ajax: {'url': '$baseUrl/secure/pages/window/usersMw' }});" class="button create"><span></span>Добавить права для конкретного пользователя</a>
+</form>
+</div>

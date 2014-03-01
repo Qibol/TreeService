@@ -1,0 +1,11 @@
+<ul class="tabs">
+	#foreach($link in $tabLinks)
+		#if($link.getLeft()==$actualTab)
+			<li class="act">
+		#else
+			<li>
+		#end
+			<a href="$link.getRight()">$link.getLeft()</a>
+		</li>
+	#end
+</ul>

@@ -1,0 +1,58 @@
+<div class="left-menu-closer" onclick="Qibol.User.toggleLeftMenu();"></div>
+<div class="left-menu">
+#if ($managementLeftMenu)
+    <ul class="management">
+    	#if ($newElementLeftMenu.isEmpty())
+    	#else
+	    	#if($newElementLeftMenu.isActiveSimple($!leftMenuAct))
+				<li class="new act">
+			#else
+				<li class="new">
+			#end
+			#if($newElementLeftMenu.hasOnClick())
+	            <a href="$newElementLeftMenu.getUrl()" onClick="$newElementLeftMenu.getOnClick()" title="$newElementLeftMenu.getText()"><span></span>$newElementLeftMenu.getText()</a>
+	        #else
+	            <a href="$newElementLeftMenu.getUrl()" title="$newElementLeftMenu.getText()"><span></span>$newElementLeftMenu.getText()</a>
+	        #end
+	        </li>
+	    #end
+	    #if ($allElementLeftMenu.isEmpty())
+    	#else    
+	        #if($allElementLeftMenu.isActiveSimple($!leftMenuAct))
+				<li class="act">
+			#else
+				<li>
+			#end
+			#if($allElementLeftMenu.hasOnClick())
+	            <a href="$allElementLeftMenu.getUrl()" onClick="$allElementLeftMenu.getOnClick()" title="$allElementLeftMenu.getText()">$allElementLeftMenu.getText()</a>
+	        #else
+	            <a href="$allElementLeftMenu.getUrl()" title="$allElementLeftMenu.getText()">$allElementLeftMenu.getText()</a>
+	        #end
+	        </li>
+        #end
+    </ul>
+#end	    
+    <ul>
+        #foreach($link in $listOfElementsInLeftMenu)
+    		#if($link.isActive($leftMenuAct, $!leftMenuId))
+    			#if($link.hasSpecialStyle())
+    				<li class="${link.getSpecialStyle()} act">
+    			#else
+    				<li class="act">
+    			#end
+    		#else
+    			#if($link.hasSpecialStyle())
+    				<li class="${link.getSpecialStyle()}">
+    			#else
+    				<li>
+    			#end
+    		#end
+    		#if($link.hasOnClick())
+    			<a href="$link.getUrl()" onClick="$link.getOnClick()" title="$link.getText()"><span></span> $link.getText()</a>
+    		#else
+    		    <a href="$link.getUrl()" title="$link.getText()"><span></span> $link.getText()</a>
+    		#end
+    		</li>
+    	#end
+    </ul>
+</div>

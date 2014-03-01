@@ -1,0 +1,109 @@
+<div class="content with-left-menu">
+	<div id="mainFeedbackContainer" class="feedback"></div>
+	
+	<h1>Редактирование сущности "$entityName"</h1>
+	#parse("util/backlink.vm")
+	#parse("util/tab.vm")
+	<table class="content-list">
+	    <thead>
+	        <tr>
+	            <th width="1%">#</th>
+	            <th width="1%">ID</th>
+	            <th>Имя</th>
+	            <th width="5%">Размер</th>
+	            <th width="10%">Дата загрузки</th>
+	            <th width="20%">Статус</th>
+	        </tr>
+	        <tr class="sort">
+	            <th></th>
+	            <th>
+                #if ($sorting == "id_asc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=id_asc" class="sort-asc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=id_asc" class="sort-asc"></a>
+                #end
+                #if ($sorting == "id_desc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=id_desc" class="sort-desc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=id_desc" class="sort-desc"></a> 
+                #end
+	            </th>
+	            <th>
+                #if ($sorting == "name_asc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=name_asc" class="sort-asc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=name_asc" class="sort-asc"></a>
+                #end
+                #if ($sorting == "name_desc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=name_desc" class="sort-desc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=name_desc" class="sort-desc"></a> 
+                #end 
+	            </th>
+	            <th>
+                #if ($sorting == "size_asc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=size_asc" class="sort-asc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=size_asc" class="sort-asc"></a>
+                #end
+                #if ($sorting == "size_desc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=size_desc" class="sort-desc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=size_desc" class="sort-desc"></a> 
+                #end 
+	            </th>
+	            <th>
+                #if ($sorting == "date_asc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=date_asc" class="sort-asc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=date_asc" class="sort-asc"></a>
+                #end
+                #if ($sorting == "date_desc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=date_desc" class="sort-desc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=date_desc" class="sort-desc"></a> 
+                #end 
+	            </th>
+	            <th>
+                #if ($sorting == "state_asc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=state_asc" class="sort-asc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=state_asc" class="sort-asc"></a>
+                #end
+                #if ($sorting == "state_desc")
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=state_desc" class="sort-desc act"></a>
+                #else
+                    <a href="../entities/fileParsing?objectId=$entityObjectId&sorting=state_desc" class="sort-desc"></a> 
+                #end 
+	            </th>
+	        </tr>
+	    </thead>
+	    <tbody>
+	    #set($num=0)
+	    #foreach($iter in $storedFilesList)
+	    #set($num=$num+1)
+	    <tr class="odd" data-id="$num">
+	    		<td class="num">$num</td>
+	            <td class="ctext">$iter.getFileId()</td>
+	            <td><a href="$baseUrl/secure/download?fileId=$iter.getFileId()">$iter.getName()</a></td>
+	            <td class="rtext">$iter.getFormattedSize()</td>
+	            <td>$iter.getLoadDate()</td>
+	            #if ($iter.getFileStatus().getId() < 2)
+	               <td class="pos">$iter.getFormattedFileStatus()</td>
+	            #else
+	               #if ($iter.getFileStatus().getId() == 4)
+	               		<td class="neg">$iter.getFormattedFileStatus()<br/><a href="$baseUrl/secure/download?fileId=$iter.getFileId()&sp=e">Получить файл с ошибками</a></td>
+	            	#else
+	               		#if ($iter.getFileStatus().getId() == 3)
+	               			<td class="neg">$iter.getFormattedFileStatus()<br/><a href="$baseUrl/secure/download?fileId=$iter.getFileId()&sp=e">Получить файл с ошибками</a></td>
+	            		#else
+	               			<td class="neg">$iter.getFormattedFileStatus()</td>
+	            		#end
+	            	#end
+	            #end
+	    </tr>
+	   	#end
+	    </tbody>
+	</table>
+	#parse("util/pager.vm")
+</div> 

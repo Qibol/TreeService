@@ -1,0 +1,73 @@
+	<p>dhtmlxTree is highly customizable JavaScript tree menu. Choose one of four tree 
+	designs to see how easily the tree appearance can be changed.</p>
+		
+	<script>
+		function setDesign(n){
+			switch(n){
+			case 4:
+				tree.enableTreeLines(true);
+				tree.setImageArrays("plus","plus2.gif","plus3.gif","plus4.gif","plus.gif","plus5.gif");
+				tree.setImageArrays("minus","minus2.gif","minus3.gif","minus4.gif","minus.gif","minus5.gif");
+				tree.setStdImages("book.gif","books_open.gif","books_close.gif");					
+				break;
+	
+			    break;
+			case 3:
+				tree.enableTreeLines(true);
+				tree.setImageArrays("plus","open2.gif","open2.gif","open2.gif","open2.gif","open2.gif");
+				tree.setImageArrays("minus","close2.gif","close2.gif","close2.gif","close2.gif","close2.gif");
+				tree.setStdImages("leaf.gif","folderOpen.gif","folderClosed.gif");					
+				break;
+			case 2:
+				tree.enableTreeLines(true);
+				tree.setImageArrays("plus","open2.gif","open2.gif","open2.gif","open2.gif","open2.gif");
+				tree.setImageArrays("minus","close2.gif","close2.gif","close2.gif","close2.gif","close2.gif");
+				tree.setStdImages("book.gif","books_open.gif","books_close.gif");					
+				break;
+			case 1:
+				tree.enableTreeLines(false);
+				tree.setImageArrays("plus","","","","plus_ar.gif","plus_ar.gif");
+				tree.setImageArrays("minus","","","","minus_ar.gif","minus_ar.gif");
+				tree.setStdImages("book.gif","books_open.gif","books_close.gif");					
+				break;
+			}
+			tree.refreshItem(0);
+		}
+	</script>
+	<table>
+		<tr>
+			<td valign="top">
+
+
+				<div id="treeboxbox_tree" style="width:250px; height:218px;background-color:#f5f5f5;border :1px solid Silver;"></div><br>
+
+			</td>
+			<td rowspan="2" style="padding-left:25" valign="top">
+			
+			<a href="javascript:void(0)" onclick="setDesign(1);">Set design 1</a><br>
+			<a href="javascript:void(0)" onclick="setDesign(2);">Set design 2</a><br>
+			<a href="javascript:void(0)" onclick="setDesign(3);">Set design 3</a><br>
+			<a href="javascript:void(0)" onclick="setDesign(4);">Set design 4</a><br>
+			
+			
+
+			</td>
+		</tr>
+		
+	</table>
+	
+	
+ 
+	<script>
+			tree=new dhtmlXTreeObject("treeboxbox_tree","100%","100%",0);
+
+			tree.setSkin('dhx_skyblue');
+			tree.setImagePath("../common/images/");
+			tree.enableDragAndDrop(0);
+			tree.enableTreeLines(false);
+			tree.setImageArrays("plus","","","","plus.gif");
+			tree.setImageArrays("minus","","","","minus.gif");
+			tree.setStdImages("book.gif","books_open.gif","books_close.gif");	
+			tree.setXMLAutoLoading("../common/tree4.xml");
+			tree.loadXML("../common/tree4.xml");
+	</script>

@@ -1,0 +1,7 @@
+<div class="loader"></div>
+<div id="mwcont" class="mw-wrap">
+    <div id="mwbg" class="mw-bg"></div>
+    #foreach ($win in $modalwindows)
+           #parse($win)
+    #end
+</div>

@@ -1,0 +1,48 @@
+<div class="pager">
+    <div>
+    #if($currentPage > 1)
+        #set($ctr = $currentPage - 1)
+        <a href="${baseActionString}pageCount=${pageCount}&pageLimit=${pageLimit}&currentPage=${ctr}">< Предыдущая</a>|
+    #end
+    #if($currentPage > 3)
+        <a href="${baseActionString}pageCount=${pageCount}&pageLimit=${pageLimit}&currentPage=1">1</a>
+    #end
+    #if($currentPage > 4)
+        <span>...</span>
+    #end
+    #set($for = [-2,-1,0,1,2])
+    #foreach($i in $for)
+        #set($ctr = $currentPage + $i)
+        #if ($ctr>0)
+            #if ($ctr <= $pageCount)
+                #if ($ctr == $currentPage)
+                    <b>$ctr</b>
+                #else
+                    <a href="${baseActionString}currentPage=${ctr}&pageLimit=${pageLimit}&pageCount=${pageCount}">$ctr</a>
+                #end
+            #end
+        #end
+    #end
+    #set($dot = $pageCount - 3)
+    #if ($currentPage < $dot)
+        <span>...</span>
+    #end
+    #if ($currentPage <= $dot)
+        <a href="${baseActionString}currentPage=${pageCount}&pageLimit=${pageLimit}&pageCount=${pageCount}">$pageCount</a>
+    #end
+    #if($currentPage < $pageCount)
+        #set($ctr = $currentPage + 1)
+        |<a href="${baseActionString}pageCount=${pageCount}&pageLimit=${pageLimit}&currentPage=${ctr}">Следующая ></a>
+    #end
+    </div>
+
+    <div class="showcount">
+        Выводить по:&nbsp;
+        <select onchange="if (this.value) window.location.href=this.value">
+        #set($for = [10,25,50,100])
+        #foreach($i in $for)
+            <option #if ($i==$pageLimit) selected #end value="${baseActionString}pageLimit=${i}">$i</option>
+        #end
+        </select>
+    </div>
+</div>

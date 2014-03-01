@@ -1,0 +1,116 @@
+<div class="content with-left-menu">
+	<div id="mainFeedbackContainer" class="feedback"></div>
+	
+	<h1>Редактирование сущности "$entityName"</h1>
+	#parse("util/backlink.vm")
+	#parse("util/tab.vm")
+	<script type="text/javascript" src="${jsBase}/jquery/jquery.fileupload.js"></script>
+	<script type="text/javascript">
+	    function UserFileUpload() {
+	        var obj = this;
+	        this.dtable = new Qibol.User.DynamicTable({
+	            target: ${esc.d}("#fileUploadTable")
+	        });
+	        this.form = ${esc.d}("#entityFileUpload");
+	        this.form.bind("submit", function() {
+	            Qibol.User.toggleError();
+	            if (obj.dtable.rowCount === 0)
+	                Qibol.User.toggleError("Выберите файлы для загрузки");
+	            return false;
+	        });
+	        //раскомментить, когда будет нужно
+	        this.rowId = 0;
+	
+	        this.form.fileupload({
+				url: "$baseUrl/secure/upload?objectId=$entityObjectId",
+	            maxFileSize: 5000000,
+	            add: function(e, data) {
+	                Qibol.User.toggleError();
+	                var errors = [];
+	                for (var i in data.files) {
+	                    if (obj.fileTypes && !obj.fileTypes.test(data.files[i]["name"])) {
+	                        errors.push("Файл " + data.files[i]["name"] + " имеет неверное расширение");
+	                        delete data.files[i];
+	                        --data.files.length;
+	                        continue;
+	                    }
+	                    ++obj.rowId;
+	                    obj.dtable.append(obj.rowId, [
+	                        {"class": "ctext user-fileupload-remove", "value": '<a href="javascript:void(0);" class="ico remove"></a>'},
+	                        {"value": data.files[i]["name"]},
+	                        {"class": "user-fileupload-progress"}
+	                    ], function(tr) {
+	                        tr.children(".user-fileupload-remove").bind("click", function() {
+	                            var id = tr.data("id");
+	                            obj.dtable.remove(id);
+	                            delete data.files[i];
+	                            --data.files.length;
+	                        });
+	                        data.files[i]["tr"] = tr;
+	                    });
+	                }
+	                if (data.files.length) {
+	                    obj.form.bind("submit", function() {
+	                        ${esc.d}.each(data.files, function() {
+	                            this.tr.children(".user-fileupload-remove").empty();
+	                            this.tr.children(".user-fileupload-progress")
+	                                    .html('<div class="tbl-wrap fullwidth"><label>Загрузка:</label><div class="progress-bar progress"></div></div>')
+	                                    .find(".progress-bar").progressBar();
+	                        });
+	                        data.submit();
+	                        return false;
+	                    });
+	                }
+	                if (errors.length)
+	                    Qibol.User.toggleError(errors);
+	            },
+	            submit: function() {
+	                obj.form.unbind("submit").bind("submit", function() {
+	                    return false;
+	                });
+	            },
+	            progress: function(e, data) {
+	                ${esc.d}.each(data.files, function() {
+	                    this.tr.children(".user-fileupload-progress").find(".progress-bar").progressBar().update(parseInt(data.loaded / data.total * 100, 10));
+	                });
+	            },
+	            done: function(e, data) {
+	                ${esc.d}.each(data.files, function() {
+	                    this.tr.children(".user-fileupload-progress").find(".progress-bar").progressBar().update(100);
+	                });
+	            }
+	        });
+	    }
+	
+	    UserFileUpload.prototype = {
+	    };
+	
+	    ${esc.d}(function() {
+	        new UserFileUpload();
+	    }); 
+	</script>
+	<span><b class="req">*</b>Могут быть загружены только файлы с расширениями .txt, .csv</span>
+	<form id="entityFileUpload">
+    <p>
+        <span class="file-input">
+            <input class="button" type="button" value="Выбрать файлы">
+            <input type="file" multiple>
+        </span>
+        <a href="javascript:void(0);" onclick="$(this).closest('form').submit();" class="button commit"><span></span>Отправить</a>
+    </p>
+    <div class="hsep"></div>
+    <table id="fileUploadTable" class="content-list">
+        <thead>
+            <tr>
+                <th width="1%">#</th>
+                <th width="1%"></th>
+                <th width="30%">Файл</th>
+                <th width="30%">Загрузка</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</form>
+
+</div>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="TreeService" default="war" basedir=".">
+	<property file="${basedir}/conf/${build.filename}.properties" />
+	<property file="${basedir}/conf/etalon_build.properties" />
+
+	<property name="app.path" value="/${app.name}" />
+	<property name="outputdir" value="${basedir}" />
+	<property name="build.home" value="${outputdir}/build" />
+	<property name="dist.home" value="${outputdir}/dist" />
+	<property name="docs.home" value="${outputdir}/docs" />
+	<property name="src.home" value="${basedir}/src" />
+	<property name="web.home" value="${basedir}/WebContent" />
+	<property name="web.public" value="${basedir}/public" />
+	<property name="lib.home" value="${basedir}/WebContent/WEB-INF/lib" />
+	<property name="warfile" value="${outputdir}/${app.name}.war" />
+	<property name="velocity.root" value="${catalina.home}/webapps/${app.name}/WEB-INF/templates" />
+
+	<path id="compile.classpath">
+		<fileset dir="${lib.home}" includes="**/*.jar" />
+		<fileset dir="${catalina.home}/bin" includes="**/*.jar" />
+		<fileset dir="${catalina.home}/lib" includes="**/*.jar" />
+	</path>
+	<taskdef resource="org/apache/catalina/ant/catalina.tasks" classpathref="compile.classpath" />
+
+	<target name="constants">
+		<copy todir="${web.public}" overwrite="true" encoding="UTF-8" outputencoding="UTF-8">
+			<fileset dir="${web.home}" includes="META-INF/**,WEB-INF/*.properties,WEB-INF/web.xml" />
+			<filterset>
+				<filter token="app.title" value="${app.title}" />
+				<filter token="app.base.url" value="${app.base.url}" />
+				<filter token="app.base.css" value="${app.base.css}" />
+				<filter token="app.base.js" value="${app.base.js}" />
+				<filter token="app.shared.url" value="${app.shared.url}" />
+				<filter token="velocity.root" value="${velocity.root}" />
+				<filter token="app.velocity.file" value="${app.velocity.file}" />
+				<filter token="app.files.root" value="${app.files.root}" />
+				<filter token="app.google.analytics" value="${app.google.analytics}" />
+			</filterset>
+		</copy>
+		<copy todir="${web.public}" overwrite="true" encoding="UTF-8" outputencoding="UTF-8">
+			<fileset dir="${web.home}" includes="WEB-INF/templates/**" />
+			<fileset dir="${web.home}" includes="WEB-INF/lib/**" />
+		</copy>
+	</target>
+
+	<target name="compile" description="Source compiling">
+		<delete dir="${build.home}/classes" />
+		<mkdir dir="${build.home}/classes" />
+		<javac srcdir="${src.home}" includes="**" encoding="utf-8" destdir="${build.home}/classes" includeantruntime="false" debug="true">
+			<compilerarg value="-Xlint:none" />
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+
+	<target name="war" description="Create application WAR file" depends="constants, compile">
+		<war destfile="${warfile}" webxml="${web.public}/WEB-INF/web.xml">
+			<lib dir="${web.public}/WEB-INF/lib" />
+			<classes dir="${build.home}/classes" />
+			<fileset dir="${web.public}" />
+		</war>
+		<delete dir="${web.public}" />
+	</target>
+
+	<target name="dist" depends="war,javadoc" description="Create binary distribution">
+
+		<!-- Copy documentation subdirectories -->
+		<copy todir="${dist.home}/docs">
+			<fileset dir="${docs.home}" />
+		</copy>
+
+		<!-- Move application WAR to dist directory -->
+		<copy file="${warfile}" todir="${dist.home}" />
+
+		<!-- Copy additional files to ${dist.home} as necessary -->
+
+	</target>
+
+	<target name="install" depends="war" description="Install application to servlet container">
+
+		<deploy url="${manager.url}" username="${manager.username}" password="${manager.password}" path="${app.path}" update="true" war="file:${warfile}" failOnError="false" />
+
+	</target>
+
+	<target name="javadoc" description="Create Javadoc API documentation">
+
+		<mkdir dir="${docs.home}/api" />
+		<javadoc sourcepath="${src.home}" destdir="${docs.home}/api" packagenames="**/*">
+			<classpath refid="compile.classpath" />
+		</javadoc>
+
+	</target>
+
+
+
+	<!-- ====================== List Target =================================== -->
+
+	<!--
+
+  The "list" target asks the specified Tomcat 6 installation to list the
+  currently running web applications, either loaded at startup time or
+  installed dynamically.  It is useful to determine whether or not the
+  application you are currently developing has been installed.
+
+-->
+
+	<target name="list" description="List installed applications on servlet container">
+
+		<list url="${manager.url}" username="${manager.username}" password="${manager.password}" />
+
+	</target>
+
+
+	<!-- ==================== Reload Target =================================== -->
+
+	<!--
+
+  The "reload" signals the specified application Tomcat 6 to shut itself down
+  and reload. This can be useful when the web application context is not
+  reloadable and you have updated classes or property files in the
+  /WEB-INF/classes directory or when you have added or updated jar files in the
+  /WEB-INF/lib directory.
+
+  NOTE: The /WEB-INF/web.xml web application configuration file is not reread
+  on a reload. If you have made changes to your web.xml file you must stop
+  then start the web application. 
+
+-->
+
+	<target name="reload" description="Reload application on servlet container">
+
+		<reload url="${manager.url}" username="${manager.username}" password="${manager.password}" path="${app.path}" />
+
+	</target>
+
+
+	<!-- ==================== Remove Target =================================== -->
+
+	<!--
+
+  The "remove" target tells the specified Tomcat 6 installation to dynamically
+  remove this web application from service.
+
+  NOTE:  This is the logical opposite of the "install" target.
+
+-->
+
+	<target name="remove" description="Remove application on servlet container">
+
+		<undeploy url="${manager.url}" username="${manager.username}" password="${manager.password}" path="${app.path}" />
+
+	</target>
+
+	<target name="deploy">
+		<delete dir="${catalina.home}/webapps/${app.name}" />
+		<delete file="${catalina.home}/webapps/${app.name}.war">
+		</delete>
+		<copy file="${warfile}" todir="${catalina.home}/webapps" />
+	</target>
+
+	<target name="redeploy" depends="war, deploy">
+	</target>
+
+</project>

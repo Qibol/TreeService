@@ -1,0 +1,6 @@
+<div class="content">
+    <div id="mainFeedbackContainer" class="feedback">
+        <h1>В доступен отказано</h1>
+    </div>
+    #parse("footer.vm")
+</div>

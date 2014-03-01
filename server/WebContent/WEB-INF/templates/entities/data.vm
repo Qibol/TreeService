@@ -1,0 +1,182 @@
+<div class="content with-left-menu">
+	<div id="mainFeedbackContainer" class="feedback"></div>
+	<h1>Редактирование сущности "$entityName"</h1>
+	#parse("util/backlink.vm")
+	#parse("util/tab.vm")
+	<script type="text/javascript">
+        ${esc.d}(function() {
+            var mainTable = ${esc.d}("#entityInstancesContainer");
+            new Qibol.User.SortableTable({
+                target: mainTable
+            });
+            #if ($allowEditObjects)
+            Qibol.Current.editableTable = new Qibol.User.EditableTable({
+                target: mainTable,
+                handlers: {
+                    #set($num=0)
+                    #foreach($column in $entityColumns)
+                        "ft$num": function(val) {
+                            if (val.length < 1)
+                                return false;
+                            return true;
+                        #if ($num < ($entityColumns.size() - 1))
+                            },
+                        #else
+                            }
+                        #end
+                        #set($num=$num+1)
+                    #end
+                },
+                invokeHandler: function() {
+                    $("#tableSaveButton, #tableCancelButton").show();
+                }
+            });
+            $("#tableSaveButton").bind("click", function() {
+                Qibol.Current.editableTable.submit({
+                    url: "$baseUrl/secure/ajax/editentitydata",
+                    data: {
+                        entityObjectId: "$entityObjectId"
+                    },
+                    callback: function() {
+                        $("#tableSaveButton, #tableCancelButton").hide();
+                    }
+                });
+            });
+            #end
+            var dynamicTable = new Qibol.User.DynamicTable({
+                target: mainTable
+            });
+            #if ($allowEditObjects)
+            mainTable.find('thead input[type="checkbox"]').bind("click", function() {
+                var selector = ${esc.d}(this).is(":checked") ? ":not(:checked)" : ":checked";
+                mainTable.find(".action-checkbox" + selector).click();
+            });
+            ${esc.d}(".action-checkbox").bind("click", function() {
+                ${esc.d}(this).closest("tr").toggleClass("active", ${esc.d}(this).is(":checked"));
+            });
+            ${esc.d}(".remove-button").bind("click", function() {
+                Qibol.User.toggleError();
+                var cbx = ${esc.d}(".action-checkbox:checked");
+                if (!cbx.length) {
+                    Qibol.User.toggleError("Не выбраны записи для удаления");
+                    return;
+                }
+                if (!confirm("Вы уверены?"))
+                    return;
+                var objectIds = [];
+                cbx.each(function() {
+                    objectIds.push(${esc.d}(this).closest("tr").data("id"));
+                });
+                
+                ${esc.d}.ajax({
+                    type: "GET",
+                    url: "$baseUrl/secure/ajax/removeobject?type=entitydata&sourceObjectId=$entityObjectId&objectIds=" + objectIds.join(':'),
+                    success : function(data) {
+                        var dataObj = ${esc.d}.parseJSON(data);
+                        for (var i in dataObj.deleted) {
+                            dynamicTable.remove(objectIds[jQuery.inArray(dataObj.deleted[i],objectIds)]);
+                        }
+                    }
+                });
+            });
+            mainTable.find(".ico.remove").bind("click", function() {
+                if (!confirm("Вы уверены?"))
+                    return;
+                var id = ${esc.d}(this).closest("tr").data("id");
+                ${esc.d}.ajax({
+                    type: "GET",
+                    url: "$baseUrl/secure/ajax/removeobject?type=entitydata&sourceObjectId=$entityObjectId&objectIds=" + id,
+                    success : function(data) {
+                        var dataObj = ${esc.d}.parseJSON(data);                    
+                        for (var i in dataObj.deleted) {
+                            if (dataObj.deleted[0] == id) {
+                                dynamicTable.remove(id);
+                            }
+                        }
+                    }
+                });
+            });
+            #end
+        });
+	</script>
+	<p>
+	    <b class="req">*</b> Для редактирования значения или названия используйте двойной клик по ячейке<!--<br>
+	    <b class="req">**</b> Для изменения порядка перетащите строку-->
+	</p>
+	<div class="content-list-header">
+        #parse("util/search.vm")
+        <p class="action-buttons">
+            <a class="button create" href="javascript:void(0);" onclick="Qibol.Utils.openMw({'element': 'entityAddRowMw'});"><span></span>Добавить</a>
+            #if ($allowEditObjects)
+                <a class="button remove remove-button" href="javascipt:void(0);"><span></span>Удалить</a>
+                <a id="tableSaveButton" class="button save" href="javascript:void(0);" style="display: none;"><span></span>Сохранить изменения</a>
+                <a id="tableCancelButton" class="button" href="javascript:void(0);" onclick="location.reload();" style="display: none;">Отменить изменения</a>
+            #end
+        </p>
+    </div>
+	<table class="content-list" id="entityInstancesContainer">
+	    <thead>
+	        <tr>
+	            <th width="1%">#</th>
+	            #if ($allowEditObjects)
+	                <th width="1%"><input type="checkbox"></th>
+                    <th width="1%"></th>
+                #end
+	            <th width="1%">ID</th>
+	            #set($num=0)
+	    		#foreach($column in $entityColumns)
+	            	<th class="editable" data-column-id="ft$num">$column.getName()</th>
+	            	#set($num=$num+1)
+	            #end
+	        </tr>
+	        <tr class="sort">
+	            <th></th>
+	            #if ($allowEditObjects)
+    	            <th></th>
+    	            <th></th>
+	            #end
+	            <th>
+	                <a href="javascript:void(0);" class="sort-asc act"></a>
+	                <a href="javascript:void(0);" class="sort-desc"></a>
+	            </th>
+	            #set($num=0)
+	            #set($width= 95 / ($entityColumns.size() + 1))
+	    		#foreach($column in $entityColumns)
+	            	<th>
+	                	<a href="javascript:void(0);" class="sort-asc act"></a>
+	                	<a href="javascript:void(0);" class="sort-desc"></a>
+	            	</th>
+	            	#set($num=$num+1)
+	            #end
+	        </tr>
+	    </thead>
+	    <tbody class="ui-sortable">
+	    	#set($num=1)
+	    	#foreach($dataRow in $entityData)
+	    		#set($num2=-1)
+	    		#set($tmp = $num % 2) 
+	    		#if ($tmp==0) 
+		        	<tr class="odd" data-id="$dataRow.get(0)">
+		        #else
+		        	<tr class="even" data-id="$dataRow.get(0)">
+		        #end
+    	            <td class="num">$num</td>
+    	            #if ($allowEditObjects)
+        	            <td class="ctext"><input class="action-checkbox" type="checkbox"></td>
+        	            <td class="ctext"><a href="javascript:void(0);" class="ico remove"></a></td>
+    	            #end 
+    	            #foreach($dataCol in $dataRow)
+    		            #if ($num2==-1)
+    		            	<td class="ctext">$!dataCol</td>
+    		            #else
+    		            	<td class="editable" data-column-id="f$num2">$!dataCol</td>
+    		            #end
+    	            	#set($num2=$num2+1)
+    	            #end
+		        </tr>
+		        #set($num=$num+1)
+	        #end
+	    </tbody>
+	</table>
+	#parse("util/pager.vm")
+</div>
